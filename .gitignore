@@ -1,0 +1,8 @@
+#backend
+server/node_modules/
+server/.env
+server/.env.*
+server/npm-debug.log
+server/yarn-error.log
+server/coverage/
+server/dist/
