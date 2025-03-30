@@ -1,10 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../features/auth/authSlice'
-import tasksReducer from '../features/tasks/tasksSlice';
+import tasksSlice from '../features/tasks/tasksSlice';
+import authSlice from '../features/auth/authSlice'; 
 
-export default configureStore({
+export const store = configureStore({
   reducer: {
-    auth: authReducer,
-    tasks: tasksReducer
-  }
+    tasks: tasksSlice,
+    auth: authSlice,
+  },
+  devTools: process.env.NODE_ENV !== 'production',
+  middleware: (getDefaultMiddleware) => 
+    getDefaultMiddleware({
+      serializableCheck: false,
+      immutableCheck: false
+    })
 });
+
+export default store;
