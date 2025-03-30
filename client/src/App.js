@@ -9,6 +9,13 @@ import RegisterPage from './pages/RegisterPage';
 import TasksPage from './pages/TasksPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
+import { io } from "socket.io-client";
+
+
+const socket = io("http://localhost:5000");
+socket.on("taskAdded", (task) => {
+  alert(`New task: ${task.title}`);
+});
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -22,7 +29,11 @@ function PublicRoute({ children }) {
 
 function App() {
   const dispatch = useDispatch();
-  const { status } = useSelector((state) => state.auth);
+  const { 
+    status = 'idle', 
+    error = null, 
+    items = [] 
+   } = useSelector((state) => state.tasks);
 
   useEffect(() => {
     dispatch(loadUser());

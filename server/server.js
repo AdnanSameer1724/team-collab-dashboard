@@ -5,10 +5,17 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const { protect } = require('./middleware/authMiddleware');
+const io = require("socket.io")(http, { cors: { origin: "http://localhost:3000" } });
 
 const app = express();
 
 app.use(express.json());
+
+io.on("connection", (socket) => {
+  socket.on("newTask", (task) => {
+    io.emit("taskAdded", task);
+  });
+});
 
 app.use(cors({
   origin: 'http://localhost:3000',

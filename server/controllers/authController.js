@@ -1,41 +1,107 @@
 const User = require("../models/User");
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
+const { validationResult } = require('express-validator'); 
 
-exports.register = asyncHandler(async (req, res) => {
-    const { name, email, password, role } = req.body;
-
-    if(!email || !password){
-        res.status(400);
-        throw new Error('Plese provide all fields');
+exports.register = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ 
+            success: false,
+            errors: errors.array() 
+        });
     }
 
-    const userExists = await User.findOne({ email });
-    if(userExists){
-        res.status(400);
-        throw new Error('User already exists');
-    }
+    const { name, email, password} = req.body;
 
-    const user = await User.create({ name, email, password, role });
-    const token = user.generateToken();
+    try {
+        let user = await User.findOne({ email });
+        if (user) {
+          return res.status(400).json({ msg: 'User already exists' });
+        }
+    
+        user = new User({
+          name,
+          email,
+          password,
+          role: 'member'
+        });
+    
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+    
+        await user.save();
+    
+        const payload = {
+          user: {
+            id: user.id,
+            role: user.role
+          }
+        };
+    
+        jwt.sign(
+          payload,
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' },
+          (err, token) => {
+            if (err) throw err;
+            res.json({ token });
+          }
+        );
+      } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+      }
+    };
 
-    res.status(201).json({
-        success: true,
-        token,
-        user: { id: user._id, name: user.name, role: user.role }
-    });
-});
 
-
-exports.login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email }).select('+password');
-    if(!user || !(await bcrypt.compare(password, user.password))) {
-        res.status(401);
-        throw new Error('Invalid credentials!');
-    }
-
-    const token = user.generateToken();
-    res.json({ success: true, token });
-});
+    exports.login = async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+      
+        const { email, password } = req.body;
+      
+        try {
+          let user = await User.findOne({ email });
+          if (!user) {
+            return res.status(400).json({ msg: 'Invalid credentials' });
+          }
+      
+          const isMatch = await bcrypt.compare(password, user.password);
+          if (!isMatch) {
+            return res.status(400).json({ msg: 'Invalid credentials' });
+          }
+      
+          const payload = {
+            user: {
+              id: user.id,
+              role: user.role
+            }
+          };
+      
+          jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' },
+            (err, token) => {
+              if (err) throw err;
+              res.json({ token });
+            }
+          );
+        } catch (err) {
+          console.error(err.message);
+          res.status(500).send('Server error');
+        }
+      };
+      
+      exports.getMe = async (req, res) => {
+        try {
+          const user = await User.findById(req.user.id).select('-password');
+          res.json(user);
+        } catch (err) {
+          console.error(err.message);
+          res.status(500).send('Server error');
+        }
+      };

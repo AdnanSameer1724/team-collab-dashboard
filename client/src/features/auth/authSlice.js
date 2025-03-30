@@ -78,31 +78,57 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
       builder
-        .addMatcher(
-          [registerUser.pending, loginUser.pending, loadUser.pending],
-          (state) => {
-            state.status = 'loading';
-          }
-        )
-        .addMatcher(
-          [registerUser.fulfilled, loginUser.fulfilled, loadUser.fulfilled],
-          (state, action) => {
-            state.status = 'succeeded';
-            state.user = action.payload.user;
-            state.token = action.payload.token;
-            state.isAuthenticated = true;
-            state.error = null;
-          }
-        )
-        .addMatcher(
-          [registerUser.rejected, loginUser.rejected, loadUser.rejected],
-          (state, action) => {
-            state.status = 'failed';
-            state.error = action.payload;
-            state.isAuthenticated = false;
-          }
-        );
-    }
+      .addCase(registerUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+        state.isAuthenticated = false;
+      });
+
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+        state.isAuthenticated = false;
+      });
+
+    builder
+      .addCase(loadUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(loadUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(loadUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+        state.isAuthenticated = false;
+        state.token = null;
+      });
+  }
 });
 
 export const { logout } = authSlice.actions;

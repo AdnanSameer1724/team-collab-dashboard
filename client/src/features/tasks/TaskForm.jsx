@@ -17,7 +17,7 @@ export default function TaskForm() {
       <input
         type="text"
         value={title}
-        onChange={(e) => setTaskText(e.target.value)}
+        onChange={(e) => setTitle(e.target.value)}
         placeholder="New task..."
         required
       />

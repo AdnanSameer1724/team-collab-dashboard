@@ -2,21 +2,21 @@ const Task = require('../models/Task');
 const asyncHandler = require('express-async-handler');
 
 exports.createTask = asyncHandler(async (req, res) => {
-    const task = await Task.create({
-        ...req.body,
-        createdBy: req.user.id
-    });
+    const { title, description, status, dueDate } = req.body;
+    const task = new Task({ title, description, status, dueDate, user: req.userId });
+    await task.save();
     res.status(201).json(task);
 });
 
 exports.getTasks = asyncHandler(async (req, res) => {
-    const { status, priority } = req.query;
+    const { status, sortBy } = req.query;
     const filter = { createdBy: req.user.id };
+    const sort = sortBy === "dueDate" ? { dueDate: 1 } : {};
 
     if(status) filter.status = status;
     if(priority) filter.priority = priority;
 
-    const tasks = await Task.find(filter);
+    const tasks = await Task.find(filter).sort(sort);
     res.json(tasks);
 });
 
