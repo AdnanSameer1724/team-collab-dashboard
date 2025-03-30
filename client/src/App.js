@@ -1,51 +1,55 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import TasksPage from './pages/TasksPage';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { loadUser } from './features/auth/authSlice';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import HomePage from './pages/HomePage';
+import TasksPage from './pages/TasksPage';
+import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function PrivateRoute({ children }) {
-  const { user } = useSelector((state) => state.auth);
-  return user ? children : <Navigate to="/login" replace />
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }) {
-  const { user } = useSelector((state) => state.auth);
-  return !user ? children : <Navigate to="/tasks" replace />
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  return !isAuthenticated ? <Outlet /> : <Navigate to="/tasks" replace />;
 }
 
 function App() {
+  const dispatch = useDispatch();
+  const { status } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(loadUser());
+  }, [dispatch]);
+
+  if (status === 'loading') {
+    return <div className='loading-screen'>Loading...</div>;
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={
-          <PublicRoute>
-            <HomePage />
-          </PublicRoute>
-        } />
+      <Route element={<PublicRoute />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
 
-        <Route path="/login" element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        } />
-
-        <Route path="/register" element={
-          <PublicRoute>
-            <RegisterPage />
-          </PublicRoute>
-        } />
-
-        <Route path="/tasks" element={
-          <PrivateRoute>
-            <TasksPage />
-          </PrivateRoute>
-        } />
+        <Route element={<PrivateRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+        </Route>
 
         <Route path="/404" element={<NotFoundPage />} />
-        <Route path="*" element={<Navigate to="/404" replace/>} />
+        <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
     </Router>
   );
