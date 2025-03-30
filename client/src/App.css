@@ -16,7 +16,68 @@
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
-  display: flex;
+  display: flex;/* Shared Auth Pages */
+  .auth-page {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  .auth-page h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .alert.error {
+    color: #dc3545;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+  }
+  
+  .auth-footer {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  /* Tasks Page */
+  .tasks-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .tasks-page header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  /* 404 Page */
+  .not-found-page {
+    text-align: center;
+    padding: 2rem;
+  }
   flex-direction: column;
   align-items: center;
   justify-content: center;
