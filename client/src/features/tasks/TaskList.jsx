@@ -1,19 +1,24 @@
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTasks, selectAllTasks, selectTasksStatus } from './tasksSlice';
+import TaskItem from './TaskItem';
 
 export default function TaskList() {
-  const tasks = useSelector(state => state.tasks);
+  const dispatch = useDispatch();
+  const tasks = useSelector(selectAllTasks);
+  const status = useSelector(selectTasksStatus);
+
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
+
+  if(status === 'loading') return <div>Loading tasks...</div>
 
   return (
-    <div>
-      {tasks.length > 0 ? (
-        <ul>
-          {tasks.map(task => (
-            <li key={task.id}>{task.text}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No tasks found</p>
-      )}
+    <div className='task-list'>
+        {tasks.map(task => (
+          <TaskItem key={task._id} task={task} />
+        ))}
     </div>
   );
 }
