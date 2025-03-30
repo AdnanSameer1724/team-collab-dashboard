@@ -1,15 +1,25 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const socketIo  = require("socket.io");
 const cors = require('cors');
 const mongoose = require('mongoose');   
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const { protect } = require('./middleware/authMiddleware');
-const io = require("socket.io")(http, { cors: { origin: "http://localhost:3000" } });
 
 const app = express();
+const server = http.createServer(app);
+
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
 
 app.use(express.json());
+
 
 io.on("connection", (socket) => {
   socket.on("newTask", (task) => {
