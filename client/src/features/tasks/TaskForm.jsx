@@ -3,24 +3,23 @@ import { useDispatch } from 'react-redux';
 import { addTask } from './tasksSlice';
 
 export default function TaskForm() {
-  const [taskText, setTaskText] = useState('');
+  const [title, setTitle] = useState('');
   const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (taskText.trim()) {
-      dispatch(addTask(taskText));
-      setTaskText('');
-    }
+    dispatch(addTask({ title }));
+    setTitle('');
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <input
         type="text"
-        value={taskText}
+        value={title}
         onChange={(e) => setTaskText(e.target.value)}
-        placeholder="Enter task..."
+        placeholder="New task..."
+        required
       />
       <button type="submit">Add Task</button>
     </form>
